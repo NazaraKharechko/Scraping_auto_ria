@@ -10,7 +10,26 @@ cursor.execute('''
         marka_auto TEXT,
         price BIGINT,
         url_auto_ria TEXT
-           
  )''')
 
+# Створення таблиці дані про пост в каналі
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS tg_post (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        time_stamp TIMESTAMP,
+        url_auto_ria TEXT
+ )''')
+
+
 db.commit()
+
+# # Виконання запиту для виведення всіх даних з таблиці
+# cursor.execute("SELECT * FROM tg_post;")
+#
+# # Отримання результатів
+# data = cursor.fetchall()
+#
+# # Виведення даних
+# print("Дані з таблиці:")
+# for row in data:
+#     print(row)

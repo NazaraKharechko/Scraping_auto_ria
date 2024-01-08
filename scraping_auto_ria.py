@@ -13,9 +13,9 @@ from db_auto import db, cursor
 #     time.sleep(600)
 #
 
-houses = []
+cars = []
 count = 1
-while count <= 3:
+while count <= 2:
     url = 'https://auto.ria.com/uk/search/?indexName=auto&categories.main.id=1&brand.id[0]=79&model.id[' \
           '0]=2104&country.import.usa.not=-1&price.currency=1&abroad.not=0&custom.not=1&confiscated=0&credit=0&page=0' \
           '' + str(count)
@@ -23,10 +23,10 @@ while count <= 3:
     response = get(url)
     html_soup = BeautifulSoup(response.text, 'html.parser')
 
-    house_data = html_soup.find_all('div', class_="content-bar")
-    if house_data:
+    cars_data = html_soup.find_all('div', class_="content-bar")
+    if cars_data:
         # Робимо затримку під час запити, щоб сайт не заблокував нас
-        houses.extend(house_data)
+        cars.extend(cars_data)
         value = random.random()
         scaled_value = 1 + (value * (9 - 5))
         # print(scaled_value)
@@ -36,10 +36,10 @@ while count <= 3:
         break
     count += 1
 
-n = int(len(houses)) - 1
+n = int(len(cars)) - 1
 count = 0
 while count <= n:  # count <= n
-    info = houses[int(count)]
+    info = cars[int(count)]
     title = info.find('a', {"class": "address"}).text
     price = info.find('span', {"class": "bold size22 green"}).text
     url_auto_ria = info.find('a', {"class": "address"})['href']
