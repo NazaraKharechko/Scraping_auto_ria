@@ -1,58 +1,56 @@
-from bs4 import BeautifulSoup  # для парсинга старниц
-import requests  # для запросов к сайту, получения содержимого веб-страницы
-from requests import get
+from bs4 import BeautifulSoup
+import requests
 import time
 import random
 from db_auto import db, cursor
 
-# # Запуск перевірки кожні 10 хвилин у циклі while
-# while True:
-#     check_resource() Виконання основного коду в тілі циклу
-#
-#     # Затримка на 10 хвилин
-#     time.sleep(600)
-#
 
-cars = []
-count = 1
-while count <= 2:
-    url = 'https://auto.ria.com/uk/search/?indexName=auto&categories.main.id=1&brand.id[0]=79&model.id[' \
-          '0]=2104&country.import.usa.not=-1&price.currency=1&abroad.not=0&custom.not=1&confiscated=0&credit=0&page=0' \
-          '' + str(count)
-    # print(url)
-    response = get(url)
+def fetch_car_data(url):
+    response = requests.get(url)
     html_soup = BeautifulSoup(response.text, 'html.parser')
+    return html_soup.find_all('div', class_="content-bar")
 
-    cars_data = html_soup.find_all('div', class_="content-bar")
-    if cars_data:
-        # Робимо затримку під час запити, щоб сайт не заблокував нас
-        cars.extend(cars_data)
-        value = random.random()
-        scaled_value = 1 + (value * (9 - 5))
-        # print(scaled_value)
-        time.sleep(scaled_value)
-    else:
-        print('empty')
-        break
-    count += 1
 
-n = int(len(cars)) - 1
-count = 0
-while count <= n:  # count <= n
-    info = cars[int(count)]
-    title = info.find('a', {"class": "address"}).text
-    price = info.find('span', {"class": "bold size22 green"}).text
-    url_auto_ria = info.find('a', {"class": "address"})['href']
-    # Перевірка чи є ці вже дані в базі
+def save_to_database(title, price, url_auto_ria):
     cursor.execute('SELECT * FROM auto WHERE url_auto_ria = ?', (url_auto_ria,))
     existing_data = cursor.fetchone()
     if existing_data:
         print('Ці дані про авто вже в базі')
     else:
-        cursor.execute('''
-            INSERT INTO auto (marka_auto, price, url_auto_ria) VALUES (?, ?, ?)
-        ''', (title, price, url_auto_ria))
+        cursor.execute('INSERT INTO auto (marka_auto, price, url_auto_ria) VALUES (?, ?, ?)',
+                       (title, price, url_auto_ria))
         db.commit()
         print(f'{title} => {price}$ url => {url_auto_ria}')
-    count += 1
 
+
+def main():
+    cars = []
+    count = 1
+
+    while count <= 2:
+        url = f'https://auto.ria.com/uk/search/?indexName=auto&categories.main.id=1&brand.id[0]=79&model.id[' \
+              f'0]=2104&country.import.usa.not=-1&price.currency=1&abroad.not=0&custom.not=1&confiscated=0&credit=0&page=0' \
+              f'{count}'
+        cars_data = fetch_car_data(url)
+        if cars_data:
+            cars.extend(cars_data)
+            value = random.uniform(5, 9)
+            time.sleep(value)
+        else:
+            print('empty')
+            break
+        count += 1
+
+    for car in cars:
+        info = car
+        title = info.find('a', {"class": "address"}).text
+        price = info.find('span', {"class": "bold size22 green"}).text
+        url_auto_ria = info.find('a', {"class": "address"})['href']
+        save_to_database(title, price, url_auto_ria)
+
+
+if __name__ == "__main__":
+    while True:
+        main()
+        # затримка 10 хв
+        time.sleep(600)
