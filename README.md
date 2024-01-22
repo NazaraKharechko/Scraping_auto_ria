@@ -9,3 +9,25 @@ Scraping Auto Ria
 
 Властивості
 2. Веб-скрапінг Auto Ria: Проект скрапить дані з веб-сайту Auto Ria та зберігає їх для подальшого використання.
+
+Використання
+Встановлення залежностей:
+
+pip install -r requirements.txt
+
+Запуск скрапінгу:
+
+python scraper.py
+Скрапер отримає дані з Auto Ria та збереже їх у файл output.csv.
+
+Відправка у Telegram:
+
+Вкажіть свій токен та чат ID у файлі config.py.
+
+python
+Copy code
+# sendMessage.py
+TELEGRAM_TOKEN = 'your_telegram_token'
+TELEGRAM_CHAT_ID = 'your_chat_id'
+
+Використовуйте отримані дані для своїх потреб. Ви можете використовувати збережені CSV-файли або інтегрувати їх у свої проекти.

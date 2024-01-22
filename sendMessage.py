@@ -36,7 +36,7 @@ def main():
                 db.commit()
             except sqlite3.IntegrityError:
                 print(f'Дані про авто з url {row[-1]} вже існують в базі')
-            text = f'Знайдено машину для вас {row[1]} ціна {row[2]}$  посилання\n => {row[3]}'
+            text = f'Знайдено машину для вас Держ номер {row[4]} {row[1]} ціна {row[2]}$  посилання\n => {row[3]}'
             send_telegram_message(bot_token, chat_id, text)
 
 
