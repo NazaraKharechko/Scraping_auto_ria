@@ -17,8 +17,11 @@ pip install -r requirements.txt
 
 Запуск скрапінгу:
 
+Створіть таблицю в базі даних запустивши файл => db_auto.py
+
 python scraper.py
 Скрапер отримає дані з Auto Ria та збереже їх у файл output.csv.
+
 
 Відправка у Telegram:
 

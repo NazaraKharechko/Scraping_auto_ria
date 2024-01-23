@@ -3,6 +3,11 @@ from bs4 import BeautifulSoup
 import requests
 import time
 import random
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
 from db_auto import db, cursor
 
 
@@ -61,18 +66,15 @@ def main():
 
 
 def get_all_data_of_car():
-    """Пошук даних про конкпетре авто з наших авто в пошуку"""
+    """Пошук даних про конкпетре авто з наших всіх авто в пошуку"""
     cursor.execute('SELECT * FROM auto')
     rows = cursor.fetchall()
-    # print(rows)
     for row in rows:
-        url = row[3]
-
+        driver = webdriver.Chrome()
         # Отримати HTML-код з вказаного URL
         url = row[3]
         response = requests.get(url)
         html_code = response.text
-
         # Створити об'єкт BeautifulSoup
         soup = BeautifulSoup(html_code, 'html.parser')
 
@@ -80,7 +82,20 @@ def get_all_data_of_car():
         price_usd = soup.find('div', {"class": "price_value"}).text
         odometer = soup.find('span', {"class": "size18"}).text
         username = soup.find('div', {"class": "seller_info_name bold"}).text
-        phone_number = soup.find('span', {"class": "phone bold"}).text
+
+        driver.get(row[3])
+        # Знаходимо елемент "показати" і клікаємо на нього
+        show_button = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.LINK_TEXT, "показати")))
+        show_button.click()
+        # Знаходимо елемент із номером телефону після кліку
+        phone_element = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "list-phone"))
+        )
+        # Отримуємо  номер телефону
+        phone_number = phone_element.text[-15:]
+        # Закриваємо веб-драйвер
+        driver.quit()
+
         image_url = soup.find('img', {"class": "outline m-auto"})['src']
         images_count = soup.find('span', {"class": "count"}).text
         datetime_found = datetime.now()
@@ -93,14 +108,12 @@ def get_all_data_of_car():
         car_number = car_number_element.text.strip()[:10] if car_number_element else None
         car_vin = vin_element.text.strip() if vin_element else None
         print(f'1{url} 2{title_car} 3{price_usd}$ 4{odometer}000 Owner{username} Phone{phone_number} Img_url{image_url}'
-              f'Img_count{images_count[3:6]} data{datetime_found}')
-        #
-        # print(f'{car_number} vin => {car_vin}')
+              f'Img_count{images_count[3:6]} data{datetime_found} Car number => {car_number} vin => {car_vin}')
 
 
 if __name__ == "__main__":
     while True:
-        # main()
-        # get_all_data_of_car()
+        main()
+        get_all_data_of_car()
         # затримка 10 хв
         time.sleep(600)
