@@ -16,8 +16,8 @@ def send_telegram_message(bot_token, chat_id, text):
 
 
 def main():
-    bot_token = '1334679162:AAEU9PnLglkVWm7B2swd_V3KbrkN1QAH3XA'
-    chat_id = '-1002040915824'
+    bot_token = ''
+    chat_id = ''
 
     cursor.execute('SELECT * FROM auto')
     rows = cursor.fetchall()
